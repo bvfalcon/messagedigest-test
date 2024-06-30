@@ -23,7 +23,7 @@ import org.openjdk.jmh.annotations.Warmup;
 public class MessageDigestBenchmark
 {
 	private static final String ALGORITHM = "SHA-512";
-	private static final int STRING_LENGTH = 128;
+	private static final int STRING_LENGTH = 1024*1024;
 	
 	public static void main(String[] args) throws IOException
 	{
@@ -34,7 +34,6 @@ public class MessageDigestBenchmark
 	public static class EmptyMessageDigestState
 	{
 		String randomString;
-		MessageDigest md;
 		
 		@Setup(Level.Iteration)
 		public void initIteration()
@@ -49,7 +48,7 @@ public class MessageDigestBenchmark
 		String randomString;
 		MessageDigest md;
 		
-		@Setup(Level.Iteration)
+		@Setup(Level.Invocation)
 		public void initIteration() throws NoSuchAlgorithmException
 		{
 			md = MessageDigest.getInstance(ALGORITHM);
@@ -60,15 +59,15 @@ public class MessageDigestBenchmark
 	@Benchmark
 	public void create(EmptyMessageDigestState state) throws NoSuchAlgorithmException
 	{
-		state.md = MessageDigest.getInstance(ALGORITHM);
+		MessageDigest md = MessageDigest.getInstance(ALGORITHM);
 	}
 	
 	@Benchmark
 	public void createUpdateDigest(EmptyMessageDigestState state) throws NoSuchAlgorithmException
 	{
-		state.md = MessageDigest.getInstance(ALGORITHM);
-		state.md.update(state.randomString.getBytes());
-		state.md.digest();
+		MessageDigest md = MessageDigest.getInstance(ALGORITHM);
+		md.update(state.randomString.getBytes());
+		md.digest();
 	}
 	
 	@Benchmark
@@ -89,9 +88,9 @@ public class MessageDigestBenchmark
 	@Benchmark
 	public void createResetUpdateDigest(EmptyMessageDigestState state) throws NoSuchAlgorithmException
 	{
-		state.md = MessageDigest.getInstance(ALGORITHM);
-		state.md.reset();
-		state.md.update(state.randomString.getBytes());
-		state.md.digest();
+		MessageDigest md = MessageDigest.getInstance(ALGORITHM);
+		md.reset();
+		md.update(state.randomString.getBytes());
+		md.digest();
 	}
 }
